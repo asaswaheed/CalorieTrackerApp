@@ -1,24 +1,17 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import OverviewScreen from './OverviewScreen';
+import DailyLogScreen from './DailyLogScreen';
+
+const Tab = createBottomTabNavigator();
 
 const HomeScreen = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Home Screen</Text>
-    </View>
+    <Tab.Navigator>
+      <Tab.Screen name="Overview" component={OverviewScreen} />
+      <Tab.Screen name="Daily Log" component={DailyLogScreen} />
+    </Tab.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-});
 
 export default HomeScreen;
