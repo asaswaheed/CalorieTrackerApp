@@ -11,7 +11,12 @@ const WelcomeScreen = ({navigation}) => {
       />
       <TouchableOpacity
         style={[styles.button, styles.buttonPrimary]}
-        onPress={() => navigation.navigate('Home')}>
+        onPress={() => {
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Home'}],
+          });
+        }}>
         <Text style={styles.buttonText}>Loslegen</Text>
       </TouchableOpacity>
     </View>
