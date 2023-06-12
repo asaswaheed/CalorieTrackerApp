@@ -1,4 +1,5 @@
 import React from 'react';
+import 'react-native-gesture-handler';
 import type {PropsWithChildren} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -13,10 +14,8 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+import AppNavigator from './src/navigation/AppNavigator';
+import MealLogScreen from './src/screens/MealLogScreen';
 
 const Stack = createStackNavigator();
 
@@ -24,9 +23,21 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        {/* Add more screens here */}
+        <Stack.Screen
+          name="Welcome"
+          component={WelcomeScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="MealLogScreen"
+          component={MealLogScreen}
+          options={{headerShown: false}}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -36,6 +47,7 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
+    backgroundColor: '#F2D8D8',
   },
   sectionTitle: {
     fontSize: 24,
