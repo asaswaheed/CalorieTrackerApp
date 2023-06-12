@@ -16,7 +16,7 @@ const OverviewScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Calorie Goal:</Text>
+      <Text style={styles.title}>Kalorienziel:</Text>
       {isEditing ? (
         <TextInput
           style={styles.input}
@@ -40,22 +40,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#041C32',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 32,
+    color: 'white',
+    fontFamily: 'Rajdhani-Bold',
   },
   goal: {
-    fontSize: 20,
+    fontSize: 24,
+    color: 'white',
+    fontFamily: 'Rajdhani-Bold',
   },
   input: {
     borderWidth: 1,
     borderColor: 'gray',
-    borderRadius: 5,
+    borderRadius: 10,
     width: '40%',
     textAlign: 'center',
     fontSize: 20,
     paddingHorizontal: 5,
+    backgroundColor: '#205295',
   },
 });
 

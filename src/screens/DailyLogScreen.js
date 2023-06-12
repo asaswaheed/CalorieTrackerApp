@@ -1,75 +1,85 @@
-import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import MealLogScreen from './MealLogScreen';
+import { createStackNavigator } from 'react-navigation/stack';
 
-const DailyLogScreen = ({navigation}) => {
-  const dailyCalories = 2000; // Replace with actual value from AsyncStorage
-  const dailyGoal = 2500; // Replace with the user's daily calorie goal from AsyncStorage
-  const macronutrients = {
-    carbs: 150, // Replace with actual macronutrient data from AsyncStorage
-    protein: 100,
-    fat: 60,
-  };
+const DailyLogScreen = ({ navigation }) => {
+  const [dailyCalories, setDailyCalories] = useState(2000); //Change with asynce
+  const [dailyGoal, setDailyGoal] = useState(2500); //Change with asynce
+  const [macronutrients, setMacronutrients] = useState({
+    carbs: 150, //Change with asynce
+    protein: 100, //Change with asynce
+    fat: 60, //Change with asynce
+  });
   const caloriesLeft = Math.max(dailyGoal - dailyCalories, 0);
-  const mealLogs = {
-    breakfast: 500, // Replace with actual meal log data from AsyncStorage
-    lunch: 800,
-    dinner: 700,
+  const [mealLogs, setMealLogs] = useState({
+    breakfast: 500, //Change with asynce
+    lunch: 800, //Change with asynce
+    dinner: 700, //Change with asynce
+  });
+  const [mealTitle, setMealTitle] = useState('');
+
+  const handleEditMeal = (meal) => {
+    setMealTitle(meal);
+    navigation.navigate('MealLogScreen', { mealTitle: meal });
   };
 
   return (
     <View style={styles.container}>
-      <View
-        style={[
-          styles.wrapperContainer,
-          {backgroundColor: '#ebe6e6'},
-        ]}>
-        <View style={[styles.summaryContainer]}>
+      <View style={[styles.wrapperContainer, { backgroundColor: '#04293A' }]}>
+        <View style={styles.summaryContainer}>
           <Text style={styles.headerText}>Gegessen</Text>
-          <Text style={[styles.calorieText, {color: (dailyGoal - dailyCalories) < 0 ? '#a10808' : '#4ecf04'}]}>{dailyCalories} kcal</Text>
-          <Text style={styles.goalText}>Goal: {dailyGoal} kcal</Text>
-          <Text style={styles.goalText}>
-            Calories Left: {caloriesLeft} kcal
+          <Text
+            style={[
+              styles.calorieText,
+              { color: dailyGoal - dailyCalories < 0 ? '#a10808' : '#4ecf04' },
+            ]}
+          >
+            {dailyCalories} kcal
           </Text>
+          <Text style={styles.goalText}>Ziel: {dailyGoal} kcal</Text>
+          <Text style={styles.goalText}>Übrig: {caloriesLeft} kcal</Text>
           <View style={styles.macronutrientContainer}>
             <Text style={styles.macronutrientText}>
-              Carbs: {macronutrients.carbs} g
+              Kohlenhyd.: {macronutrients.carbs} g
             </Text>
             <Text style={styles.macronutrientText}>
               Protein: {macronutrients.protein} g
             </Text>
             <Text style={styles.macronutrientText}>
-              Fat: {macronutrients.fat} g
+              Fett: {macronutrients.fat} g
             </Text>
           </View>
         </View>
       </View>
 
-      <View style={styles.mealContainer}>
-        <View style={styles.mealItem}>
-          <Text style={styles.mealText}>
-            Frühstück - {mealLogs.breakfast} kcal
-          </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('BreakfastLog')}>
-            <Text style={styles.editText}>Bearbeiten</Text>
-          </TouchableOpacity>
+        <View style={[styles.mealContainer, { backgroundColor: '#04293A' }]}>
+          <View style={styles.mealItem}>
+            <Text style={styles.mealText}>
+              Frühstück - {mealLogs.breakfast} kcal
+            </Text>
+            <TouchableOpacity onPress={() => handleEditMeal('Frühstück')}>
+              <Text style={styles.editText}>Bearbeiten</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.mealItem}>
+            <Text style={styles.mealText}>
+              Mittagessen - {mealLogs.lunch} kcal
+            </Text>
+            <TouchableOpacity onPress={() => handleEditMeal('Mittagessen')}>
+              <Text style={styles.editText}>Bearbeiten</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.mealItem}>
+            <Text style={styles.mealText}>
+              Abendessen - {mealLogs.dinner} kcal
+            </Text>
+            <TouchableOpacity onPress={() => handleEditMeal('Abendessen')}>
+              <Text style={styles.editText}>Bearbeiten</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.mealItem}>
-          <Text style={styles.mealText}>
-            Mittagessen - {mealLogs.lunch} kcal
-          </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('LunchLog')}>
-            <Text style={styles.editText}>Bearbeiten</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.mealItem}>
-          <Text style={styles.mealText}>
-            Abendessen - {mealLogs.dinner} kcal
-          </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('DinnerLog')}>
-            <Text style={styles.editText}>Bearbeiten</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+
     </View>
   );
 };
@@ -77,7 +87,7 @@ const DailyLogScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#041C32',
   },
   wrapperContainer: {
     flex: 0.7,
@@ -85,9 +95,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
     margin: 7,
-    borderWidth: 0.5, // Set the border width (e.g., 1 pixel)
-    borderColor: '#5e615f', // Set the border color (e.g., black)
-    borderRadius: 20, // Set the border radius (e.g., 10 pixels) for rounded corners
+    borderWidth: 0.5,
+    borderColor: '#5e615f',
+    borderRadius: 20,
   },
   summaryContainer: {
     flex: 0.25,
@@ -96,52 +106,71 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    color: 'white',
     marginBottom: 5,
+    fontFamily: 'Rajdhani-Bold',
   },
   calorieText: {
     fontSize: 48,
-    fontWeight: 'bold',
-    color: '#007bff',
+    color: 'white',
     marginBottom: 10,
+    fontFamily: 'Rajdhani-Bold',
   },
   goalText: {
     fontSize: 18,
-    color: '#333',
+    color: 'white',
     marginBottom: 10,
+    fontFamily: 'Rajdhani-Bold',
   },
   macronutrientContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    paddingHorizontal: 2,
+    paddingHorizontal: 5,
   },
   macronutrientText: {
     fontSize: 18,
-    color: '#333',
+    color: 'white',
+    fontFamily: 'Rajdhani-Bold',
   },
   mealContainer: {
-    flex: 0.8,
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    flex: 1.1,
+    paddingHorizontal: 5,
+    paddingTop: 5,
+    margin: 7,
+    borderRadius: 20,
+    borderColor: '#5e615f',
+    borderWidth: 0.5,
+    justifyContent: 'center',
   },
   mealItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.7,
     borderBottomColor: '#ccc',
-    paddingVertical: 20,
+    paddingVertical: 40,
+    paddingHorizontal: 20,
   },
   mealText: {
-    fontSize: 20,
-    color: '#333',
+    fontSize: 24,
+    color: 'white',
+    fontFamily: 'Rajdhani-Bold',
   },
   editText: {
     fontSize: 16,
-    color: '#007bff',
+    color: 'white',
+    fontFamily: 'Rajdhani-Regular',
   },
 });
+
+// flex: 1.1,
+// justifyContent: 'center',
+// alignItems: 'center',
+// paddingHorizontal: 2,
+// margin: 7,
+// borderWidth: 0.5,
+// borderColor: '#5e615f',
+// borderRadius: 20,
 
 export default DailyLogScreen;
