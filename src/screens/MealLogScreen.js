@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
+  Modal,
 } from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
@@ -14,6 +15,32 @@ const MealLogScreen = ({navigation, route}) => {
   const {mealTitle} = route.params;
   const [mealCalories, setMealCalories] = useState(0);
   const [items, setItems] = useState([]);
+  const [searchText, setSearchText] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showItemDetails, setShowItemDetails] = useState(false);
+
+  const mockedSearchResults = [
+    {id: 1, name: 'Apple', calories: 52, fat: 0.2, carbs: 14, protein: 0.3},
+    {id: 2, name: 'Banana', calories: 96, fat: 0.2, carbs: 23, protein: 1},
+    {id: 3, name: 'Orange', calories: 43, fat: 0.1, carbs: 9, protein: 0.9},
+    // Add more mocked search results as needed
+  ];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // Make the API call using the searchText
+      // Update the searchResults with the fetched data
+    };
+
+    if (searchText.trim() !== '') {
+      fetchData();
+      setShowDropdown(true);
+    } else {
+      setShowDropdown(false);
+    }
+  }, [searchText]);
 
   const handleSaveMeal = () => {
     // Logic to save the meal calories to AsyncStorage or perform any other action
@@ -24,20 +51,32 @@ const MealLogScreen = ({navigation, route}) => {
     navigation.navigate('ScanBarcode');
   };
 
-  const handleAddItem = () => {
-    if (searchText.trim() != '') {
-      const newItem = {name: searchText, calories: mealCalories};
-      setItems(prevItems => [...prevItems, newItem]);
-      setSearchText('');
-      setMealCalories(0);
-    }
+  const handleSearch = searchText => {
+    // Simulate fetching search results
+    const filteredResults = mockedSearchResults.filter(item =>
+      item.name.toLowerCase().includes(searchText.toLowerCase()),
+    );
+
+    setSearchResults(filteredResults);
+  };
+
+  const handleAddItem = item => {
+    const newItem = {name: item.name, calories: item.calories};
+    setItems(prevItems => [...prevItems, newItem]);
+  };
+
+  const handleSelectItem = item => {
+    setSelectedItem(item);
+    setSearchText(item.name);
+    setShowDropdown(false);
   };
 
   const renderItem = ({item}) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemCalories}>{item.calories} kcal</Text>
-    </View>
+    <TouchableOpacity
+      style={styles.dropdownItem}
+      onPress={() => handleAddItem(item)}>
+      <Text style={styles.dropdownItemText}>{item.name}</Text>
+    </TouchableOpacity>
   );
 
   return (
@@ -57,13 +96,28 @@ const MealLogScreen = ({navigation, route}) => {
           style={styles.searchInput}
           placeholder="Lebensmittel suchen"
           placeholderTextColor="#888"
-          // Implement search functionality as needed
+          value={searchText}
+          onChangeText={handleSearch}
+          //onChangeText={setSearchText}
         />
         {/* Scan barcode button */}
         <TouchableOpacity style={styles.scanButton} onPress={handleScanBarcode}>
           <MaterialCommunityIcons name="barcode-scan" size={24} color="white" />
         </TouchableOpacity>
       </View>
+
+      {showDropdown && (
+        <View style={styles.dropdownContainer}>
+          {searchResults.map(item => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.dropdownItem}
+              onPress={() => handleSelectItem(item)}>
+              <Text style={styles.dropdownItemText}>{item.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       <View style={styles.contentContainer}>
         <Text style={styles.labelText}>Kalorien:</Text>
@@ -75,9 +129,21 @@ const MealLogScreen = ({navigation, route}) => {
           data={items}
           renderItem={renderItem}
           keyExtractor={(item, index) => index.toString()}
-          contentContainerStyle={styles.listContainer}
+          contentContainerStyle={styles.listContentContainer}
         />
       </View>
+
+      <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
+        <Text style={styles.addButtonText}>Hinzufügen</Text>
+      </TouchableOpacity>
+
+      {/* Item Details Screen/Modal */}
+      <Modal visible={showItemDetails} animationType="slide" transparent>
+        <View style={styles.modalContainer}>
+          {/* Item details and amount selection */}
+          {/* Add button */}
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -171,6 +237,72 @@ const styles = StyleSheet.create({
   listContainer: {
     flexGrow: 1,
     width: '100%',
+  },
+  addButton: {
+    backgroundColor: '#007bff',
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  addButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    top: 100,
+    left: 10,
+    right: 10,
+    zIndex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    elevation: 4,
+  },
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContentContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalItemText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalAddButton: {
+    backgroundColor: '#007bff',
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  modalAddButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
 

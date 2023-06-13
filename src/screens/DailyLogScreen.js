@@ -1,40 +1,92 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import MealLogScreen from './MealLogScreen';
-import { createStackNavigator } from 'react-navigation/stack';
+import {createStackNavigator} from 'react-navigation-stack';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const DailyLogScreen = ({ navigation }) => {
-  const [dailyCalories, setDailyCalories] = useState(2000); //Change with asynce
-  const [dailyGoal, setDailyGoal] = useState(2500); //Change with asynce
+const DailyLogScreen = ({navigation}) => {
+  const [dailyCalories, setDailyCalories] = useState(2000); // Change with async
+  const [dailyGoal, setDailyGoal] = useState(2500); // Change with async
   const [macronutrients, setMacronutrients] = useState({
-    carbs: 150, //Change with asynce
-    protein: 100, //Change with asynce
-    fat: 60, //Change with asynce
+    carbs: 150, // Change with async
+    protein: 100, // Change with async
+    fat: 60, // Change with async
   });
   const caloriesLeft = Math.max(dailyGoal - dailyCalories, 0);
   const [mealLogs, setMealLogs] = useState({
-    breakfast: 500, //Change with asynce
-    lunch: 800, //Change with asynce
-    dinner: 700, //Change with asynce
+    breakfast: 500, // Change with async
+    lunch: 800, // Change with async
+    dinner: 700, // Change with async
   });
   const [mealTitle, setMealTitle] = useState('');
 
-  const handleEditMeal = (meal) => {
+  const handleEditMeal = meal => {
     setMealTitle(meal);
-    navigation.navigate('MealLogScreen', { mealTitle: meal });
+    navigation.navigate('MealLogScreen', {mealTitle: meal});
+  };
+
+  const getFormattedDate = date => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Heute';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Gestern';
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return 'Morgen';
+    } else {
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}.${month}.${year}`;
+    }
+  };
+
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Replace with your initial selected date
+
+  const handlePreviousDay = () => {
+    const previousDay = new Date(selectedDate);
+    previousDay.setDate(selectedDate.getDate() - 1);
+    setSelectedDate(previousDay);
+  };
+
+  const handleNextDay = () => {
+    const nextDay = new Date(selectedDate);
+    nextDay.setDate(selectedDate.getDate() + 1);
+    setSelectedDate(nextDay);
+  };
+
+  const handleDatePress = () => {
+    const currentDate = new Date();
+    setSelectedDate(currentDate);
   };
 
   return (
     <View style={styles.container}>
-      <View style={[styles.wrapperContainer, { backgroundColor: '#04293A' }]}>
+      <View style={[styles.calendarBar]}>
+        <TouchableOpacity onPress={handlePreviousDay}>
+          <Icon name="keyboard-arrow-left" size={30} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.dateText} onPress={handleDatePress}>
+          {getFormattedDate(selectedDate)}
+        </Text>
+        <TouchableOpacity onPress={handleNextDay}>
+          <Icon name="keyboard-arrow-right" size={30} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={[styles.wrapperContainer, {backgroundColor: '#04293A'}]}>
         <View style={styles.summaryContainer}>
           <Text style={styles.headerText}>Gegessen</Text>
           <Text
             style={[
               styles.calorieText,
-              { color: dailyGoal - dailyCalories < 0 ? '#a10808' : '#4ecf04' },
-            ]}
-          >
+              {color: dailyGoal - dailyCalories < 0 ? '#a10808' : '#4ecf04'},
+            ]}>
             {dailyCalories} kcal
           </Text>
           <Text style={styles.goalText}>Ziel: {dailyGoal} kcal</Text>
@@ -53,33 +105,32 @@ const DailyLogScreen = ({ navigation }) => {
         </View>
       </View>
 
-        <View style={[styles.mealContainer, { backgroundColor: '#04293A' }]}>
-          <View style={styles.mealItem}>
-            <Text style={styles.mealText}>
-              Frühstück - {mealLogs.breakfast} kcal
-            </Text>
-            <TouchableOpacity onPress={() => handleEditMeal('Frühstück')}>
-              <Text style={styles.editText}>Bearbeiten</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.mealItem}>
-            <Text style={styles.mealText}>
-              Mittagessen - {mealLogs.lunch} kcal
-            </Text>
-            <TouchableOpacity onPress={() => handleEditMeal('Mittagessen')}>
-              <Text style={styles.editText}>Bearbeiten</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.mealItem}>
-            <Text style={styles.mealText}>
-              Abendessen - {mealLogs.dinner} kcal
-            </Text>
-            <TouchableOpacity onPress={() => handleEditMeal('Abendessen')}>
-              <Text style={styles.editText}>Bearbeiten</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={[styles.mealContainer, {backgroundColor: '#04293A'}]}>
+        <View style={styles.mealItem}>
+          <Text style={styles.mealText}>
+            Frühstück - {mealLogs.breakfast} kcal
+          </Text>
+          <TouchableOpacity onPress={() => handleEditMeal('Frühstück')}>
+            <Text style={styles.editText}>Bearbeiten</Text>
+          </TouchableOpacity>
         </View>
-
+        <View style={styles.mealItem}>
+          <Text style={styles.mealText}>
+            Mittagessen - {mealLogs.lunch} kcal
+          </Text>
+          <TouchableOpacity onPress={() => handleEditMeal('Mittagessen')}>
+            <Text style={styles.editText}>Bearbeiten</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.mealItem}>
+          <Text style={styles.mealText}>
+            Abendessen - {mealLogs.dinner} kcal
+          </Text>
+          <TouchableOpacity onPress={() => handleEditMeal('Abendessen')}>
+            <Text style={styles.editText}>Bearbeiten</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
@@ -89,6 +140,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#041C32',
   },
+  calendarBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    margin: 7,
+    borderRadius: 20,
+  },
+  dateText: {
+    fontSize: 18,
+    color: 'white',
+    fontFamily: 'Rajdhani-Bold',
+  },
   wrapperContainer: {
     flex: 0.7,
     justifyContent: 'center',
@@ -96,7 +160,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     margin: 7,
     borderWidth: 0.5,
-    borderColor: '#5e615f',
     borderRadius: 20,
   },
   summaryContainer: {
@@ -139,7 +202,6 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     margin: 7,
     borderRadius: 20,
-    borderColor: '#5e615f',
     borderWidth: 0.5,
     justifyContent: 'center',
   },
@@ -163,14 +225,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Rajdhani-Regular',
   },
 });
-
-// flex: 1.1,
-// justifyContent: 'center',
-// alignItems: 'center',
-// paddingHorizontal: 2,
-// margin: 7,
-// borderWidth: 0.5,
-// borderColor: '#5e615f',
-// borderRadius: 20,
 
 export default DailyLogScreen;
