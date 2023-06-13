@@ -12,7 +12,7 @@ const getTabBarIcon = (routeName, focused, color, size) => {
 
   if (routeName === 'Übersicht') {
     iconName = focused ? 'home' : 'home-outline';
-  } else if (routeName === 'Kalorien') {
+  } else if (routeName === 'Tagebuch') {
     iconName = focused ? 'bar-chart' : 'bar-chart-outline';
   }
 
@@ -35,7 +35,7 @@ const HomeScreen = () => {
         })}
       >
         <Tab.Screen name="Übersicht" component={OverviewScreen} />
-        <Tab.Screen name="Kalorien" component={DailyLogScreen} />
+        <Tab.Screen name="Tagebuch" component={DailyLogScreen} />
       </Tab.Navigator>
     </View>
   );
