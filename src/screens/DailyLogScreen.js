@@ -1,8 +1,12 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import MealLogScreen from './MealLogScreen';
 import {createStackNavigator} from 'react-navigation-stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {
+  retrieveMealsLog,
+  retrieveUserProfile,
+} from '../components/storageService';
 
 const DailyLogScreen = ({navigation}) => {
   const [dailyCalories, setDailyCalories] = useState(2000); // Change with async
@@ -20,9 +24,50 @@ const DailyLogScreen = ({navigation}) => {
   });
   const [mealTitle, setMealTitle] = useState('');
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const storedMealsLog = await retrieveMealsLog();
+      const storedUserProfile = await retrieveUserProfile();
+
+      if (storedMealsLog && storedMealsLog.calories) {
+        setDailyCalories(storedMealsLog.calories);
+      } else {
+        setDailyCalories(0);
+      }
+
+      if (storedUserProfile && storedUserProfile.goal) {
+        setDailyGoal(storedUserProfile.goal);
+      } else {
+        setDailyGoal(0);
+      }
+
+      if (storedUserProfile && storedUserProfile.macronutrients) {
+        setMacronutrients(storedUserProfile.macronutrients);
+      } else {
+        setMacronutrients({
+          carbs: 0,
+          protein: 0,
+          fat: 0,
+        });
+      }
+
+      if (storedMealsLog && storedMealsLog.meals) {
+        setMealLogs(storedMealsLog.meals);
+      } else {
+        setMealLogs({
+          breakfast: 0,
+          lunch: 0,
+          dinner: 0,
+        });
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const handleEditMeal = meal => {
     setMealTitle(meal);
-    navigation.navigate('MealLogScreen', {mealTitle: meal});
+    navigation.navigate('MealLogScreen', {mealTitle: meal, selectedDate});
   };
 
   const getFormattedDate = date => {
