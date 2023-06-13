@@ -1,6 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
 import {Calendar} from 'react-native-calendars';
+import CalorieSummaryContainer from '../components/CalorieSummaryContainer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { retrieveMealsLog } from '../components/storageService';
 
 const OverviewScreen = () => {
   const [calorieGoal, setCalorieGoal] = useState('2000');
@@ -43,45 +46,24 @@ const OverviewScreen = () => {
     return result;
   };
 
-  const handleDayPress = day => {
+  const handleDayPress = async (day) => {
     setSelectedDate(day.dateString);
-    const currentDate = new Date();
-
-    const isToday = isSameDay(day.dateString, currentDate);
-    const isYesterday = isSameDay(day.dateString, addDays(currentDate, -1));
-    const isTomorrow = isSameDay(day.dateString, addDays(currentDate, 1));
-
-    if (isToday) {
-      // Update summary container for today
-      setDailyCalories(2000); // Replace with your logic
+    const mealsLog = await retrieveMealsLog();
+  
+    if (mealsLog && mealsLog[day.dateString]) {
+      const selectedData = mealsLog[day.dateString];
+      setDailyCalories(selectedData.calories);
       setMacronutrients({
-        carbs: 150, // Replace with your logic
-        protein: 100, // Replace with your logic
-        fat: 60, // Replace with your logic
-      });
-    } else if (isYesterday) {
-      // Update summary container for yesterday
-      setDailyCalories(1800); // Replace with your logic
-      setMacronutrients({
-        carbs: 120, // Replace with your logic
-        protein: 90, // Replace with your logic
-        fat: 50, // Replace with your logic
-      });
-    } else if (isTomorrow) {
-      // Update summary container for tomorrow
-      setDailyCalories(2200); // Replace with your logic
-      setMacronutrients({
-        carbs: 170, // Replace with your logic
-        protein: 110, // Replace with your logic
-        fat: 70, // Replace with your logic
+        carbs: selectedData.carbs,
+        protein: selectedData.protein,
+        fat: selectedData.fat,
       });
     } else {
-      // Update summary container for other dates
-      setDailyCalories(0); // Replace with your logic
+      setDailyCalories(0);
       setMacronutrients({
-        carbs: 0, // Replace with your logic
-        protein: 0, // Replace with your logic
-        fat: 0, // Replace with your logic
+        carbs: 0,
+        protein: 0,
+        fat: 0,
       });
     }
   };
@@ -117,6 +99,12 @@ const OverviewScreen = () => {
       </View>
 
       <View style={styles.calendarContainer}>
+        <CalorieSummaryContainer
+          carbs={macronutrients.carbs}
+          protein={macronutrients.protein}
+          fat={macronutrients.fat}
+        />
+
         <Calendar
           onDayPress={handleDayPress}
           markedDates={renderMarkedDates()}
@@ -136,23 +124,6 @@ const OverviewScreen = () => {
           }}
           style={styles.calendar}
         />
-      </View>
-
-      <View style={styles.summaryContainer}>
-        <Text style={styles.summaryTotalCalorieText}>
-          Gesamtkalorien: {dailyCalories}
-        </Text>
-        <View style={styles.macronutrientContainer}>
-          <Text style={styles.macronutrientText}>
-            Kohlenhyd.: {macronutrients.carbs} g
-          </Text>
-          <Text style={styles.macronutrientText}>
-            Protein: {macronutrients.protein} g
-          </Text>
-          <Text style={styles.macronutrientText}>
-            Fett: {macronutrients.fat} g
-          </Text>
-        </View>
       </View>
     </View>
   );
@@ -232,7 +203,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 7,
-    marginTop: 7,
+    margin: 7,
     borderRadius: 20,
     paddingLeft: 2,
     paddingRight: 2,

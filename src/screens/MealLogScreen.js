@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,17 @@ import {
   FlatList,
   Modal,
 } from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
-import {MaterialCommunityIcons} from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { fetchSearchResults } from '../components/searchService';
+import {
+    storeMealsLog,
+    retrieveMealsLog,
+  } from '../components/storageService';
 
-const MealLogScreen = ({navigation, route}) => {
-  const {mealTitle} = route.params;
+const MealLogScreen = ({ navigation, route }) => {
+  const { mealTitle } = route.params;
+  const selectedDate = new Date(route.params.selectedDate.getTime());
   const [mealCalories, setMealCalories] = useState(0);
   const [items, setItems] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -20,18 +26,12 @@ const MealLogScreen = ({navigation, route}) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showItemDetails, setShowItemDetails] = useState(false);
-
-  const mockedSearchResults = [
-    {id: 1, name: 'Apple', calories: 52, fat: 0.2, carbs: 14, protein: 0.3},
-    {id: 2, name: 'Banana', calories: 96, fat: 0.2, carbs: 23, protein: 1},
-    {id: 3, name: 'Orange', calories: 43, fat: 0.1, carbs: 9, protein: 0.9},
-    // Add more mocked search results as needed
-  ];
+  const [mealsLog, setMealsLog] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
-      // Make the API call using the searchText
-      // Update the searchResults with the fetched data
+      const results = await fetchSearchResults(searchText);
+      setSearchResults(results);
     };
 
     if (searchText.trim() !== '') {
@@ -42,26 +42,34 @@ const MealLogScreen = ({navigation, route}) => {
     }
   }, [searchText]);
 
-  const handleSaveMeal = () => {
-    // Logic to save the meal calories to AsyncStorage or perform any other action
-    navigation.goBack();
+  useEffect(() => {
+    const fetchMealsLog = async () => {
+      const log = await retrieveMealsLog();
+      setMealsLog(log);
+    };
+    fetchMealsLog();
+  }, []);
+
+  const handleSaveMeal = async () => {
+    const meal = { title: mealTitle, calories: mealCalories, items };
+    const updatedLog = {
+      ...mealsLog,
+      [selectedDate]: { ...(mealsLog[selectedDate] || {}), [mealTitle]: meal },
+    };
+    try {
+      await storeMealsLog(updatedLog);
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error saving meal:', error);
+    }
   };
 
   const handleScanBarcode = () => {
     navigation.navigate('ScanBarcode');
   };
 
-  const handleSearch = searchText => {
-    // Simulate fetching search results
-    const filteredResults = mockedSearchResults.filter(item =>
-      item.name.toLowerCase().includes(searchText.toLowerCase()),
-    );
-
-    setSearchResults(filteredResults);
-  };
-
   const handleAddItem = item => {
-    const newItem = {name: item.name, calories: item.calories};
+    const newItem = { name: item.name, calories: item.calories };
     setItems(prevItems => [...prevItems, newItem]);
   };
 
@@ -71,79 +79,95 @@ const MealLogScreen = ({navigation, route}) => {
     setShowDropdown(false);
   };
 
-  const renderItem = ({item}) => (
-    <TouchableOpacity
-      style={styles.dropdownItem}
-      onPress={() => handleAddItem(item)}>
-      <Text style={styles.dropdownItemText}>{item.name}</Text>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    if (item.id === 0) {
+      // Display "Keine Ergebnisse" message
+      return (
+        <View style={styles.dropdownItem}>
+          <Text style={styles.dropdownItemText}>{item.name}</Text>
+        </View>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.dropdownItem}
+        onPress={() => handleSelectItem(item)}
+      >
+        <Text style={styles.dropdownItemText}>{item.name}</Text>
+        <View style={styles.dropdownItemDetails}>
+          <Text style={styles.dropdownItemCalories}>{item.calories} kcal</Text>
+          <TouchableOpacity onPress={() => handleAddItem(item)}>
+            <MaterialCommunityIcons name="plus" size={24} color="#007bff" />
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>{mealTitle}</Text>
-      </View>
-
-      <View style={styles.searchContainer}>
-        {/* Search bar */}
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Lebensmittel suchen"
-          placeholderTextColor="#888"
-          value={searchText}
-          onChangeText={handleSearch}
-          //onChangeText={setSearchText}
-        />
-        {/* Scan barcode button */}
-        <TouchableOpacity style={styles.scanButton} onPress={handleScanBarcode}>
-          <MaterialCommunityIcons name="barcode-scan" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
-
-      {showDropdown && (
-        <View style={styles.dropdownContainer}>
-          {searchResults.map(item => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.dropdownItem}
-              onPress={() => handleSelectItem(item)}>
-              <Text style={styles.dropdownItemText}>{item.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-
-      <View style={styles.contentContainer}>
-        <Text style={styles.labelText}>Kalorien:</Text>
-        <Text style={styles.calorieText}>{mealCalories} kcal</Text>
-      </View>
-
-      <View style={styles.listContainer}>
-        <FlatList
-          data={items}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()}
-          contentContainerStyle={styles.listContentContainer}
-        />
-      </View>
-
-      <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
-        <Text style={styles.addButtonText}>Hinzufügen</Text>
-      </TouchableOpacity>
-
-      {/* Item Details Screen/Modal */}
-      <Modal visible={showItemDetails} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          {/* Item details and amount selection */}
-          {/* Add button */}
+      <Modal visible={showItemDetails} animationType="slide">
+        <View style={styles.itemDetailsContainer}>
+          <Text style={styles.itemDetailsTitle}>{selectedItem?.name}</Text>
+          <Text style={styles.itemDetailsText}>Calories: {selectedItem?.calories}</Text>
+          <Text style={styles.itemDetailsText}>Fat: {selectedItem?.fat}</Text>
+          <Text style={styles.itemDetailsText}>Carbs: {selectedItem?.carbs}</Text>
+          <Text style={styles.itemDetailsText}>Protein: {selectedItem?.protein}</Text>
+          <TouchableOpacity
+            style={styles.itemDetailsButton}
+            onPress={() => setShowItemDetails(false)}
+          >
+            <Text style={styles.itemDetailsButtonText}>Close</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleSaveMeal}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.title}>{mealTitle}</Text>
+        <TouchableOpacity onPress={handleScanBarcode}>
+          <MaterialCommunityIcons name="barcode-scan" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          value={searchText}
+          onChangeText={text => setSearchText(text)}
+          placeholder="Lebensmittel suchen"
+          onFocus={() => setShowDropdown(true)}
+          onBlur={() => setShowDropdown(false)}
+        />
+        {showDropdown && (
+          <View style={styles.dropdownContainer}>
+            <FlatList
+              data={searchResults}
+              renderItem={renderItem}
+              keyExtractor={item => item.id.toString()}
+            />
+          </View>
+        )}
+      </View>
+      <View style={styles.itemsContainer}>
+        <FlatList
+          data={items}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => {
+                setSelectedItem(item);
+                setShowItemDetails(true);
+              }}
+            >
+              <Text>{item.name}</Text>
+              <Text>{item.calories} kcal</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
     </View>
   );
 };
@@ -151,158 +175,97 @@ const MealLogScreen = ({navigation, route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#041C32',
+    padding: 16,
+    backgroundColor: '#fff',
   },
-  headerContainer: {
+  header: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    backgroundColor: '#041C32',
-    paddingTop: 20,
-  },
-  backButton: {
-    borderRadius: 8,
-    width: 40,
-    height: 40,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 20,
-    backgroundColor: '#041C32',
+    marginBottom: 16,
   },
   searchInput: {
-    flex: 1,
     height: 40,
-    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 8,
-    paddingHorizontal: 10,
-    marginRight: 10,
-    fontSize: 16,
-    color: '#333',
-  },
-  scanButton: {
-    backgroundColor: '#04293A',
-    borderRadius: 8,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  contentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#041C32',
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 20,
-  },
-  labelText: {
-    fontSize: 18,
-    color: 'white',
-    marginBottom: 10,
-  },
-  calorieText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 20,
-  },
-  itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    marginBottom: 10,
-  },
-  itemName: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  itemCalories: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#007bff',
-    marginLeft: 10,
-  },
-  listContainer: {
-    flexGrow: 1,
-    width: '100%',
-  },
-  addButton: {
-    backgroundColor: '#007bff',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
+    paddingHorizontal: 12,
   },
   dropdownContainer: {
     position: 'absolute',
-    top: 100,
-    left: 10,
-    right: 10,
-    zIndex: 1,
+    top: 48,
+    left: 0,
+    right: 0,
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 8,
-    elevation: 4,
+    maxHeight: 200,
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    paddingBottom: 4,
   },
   dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
   dropdownItemText: {
     fontSize: 16,
-    color: '#333',
   },
-  modalContainer: {
+  dropdownItemDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  dropdownItemCalories: {
+    fontSize: 12,
+    color: '#888',
+  },
+  itemsContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  modalContentContainer: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+  item: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  modalItemText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalAddButton: {
-    backgroundColor: '#007bff',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+  itemDetailsContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  modalAddButtonText: {
+  itemDetailsTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  itemDetailsText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  itemDetailsButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  itemDetailsButtonText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'white',
   },
 });
 
