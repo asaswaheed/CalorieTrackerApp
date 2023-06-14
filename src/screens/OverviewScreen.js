@@ -1,22 +1,46 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import CalorieSummaryContainer from '../components/CalorieSummaryContainer';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { retrieveMealsLog } from '../components/storageService';
+import {
+  retrieveMealsLog,
+  retrieveCalorieGoal,
+} from '../services/storageService';
+import {UserContext} from '../../App'; // Import UserContext from App.tsx
+import UserCard from '../components/UserCard';
 
 const OverviewScreen = () => {
-  const [calorieGoal, setCalorieGoal] = useState('2000');
+  const {user, updateUser} = useContext(UserContext);
+  const [calorieGoal, setCalorieGoal] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split('T')[0],
+  );
 
-  const [dailyCalories, setDailyCalories] = useState(2000); //Change with asynce
-  const [dailyGoal, setDailyGoal] = useState(2500); //Change with asynce
+  const [dailyCalories, setDailyCalories] = useState(0);
+  const [dailyGoal, setDailyGoal] = useState(0);
   const [macronutrients, setMacronutrients] = useState({
-    carbs: 150, //Change with asynce
-    protein: 100, //Change with asynce
-    fat: 60, //Change with asynce
+    carbs: 0,
+    protein: 0,
+    fat: 0,
   });
+
+  useEffect(() => {
+    const fetchCalorieGoal = async () => {
+      const goal = await retrieveCalorieGoal();
+      if (goal) {
+        setCalorieGoal(goal);
+      } else {
+        setCalorieGoal(0);
+      }
+    };
+
+    fetchCalorieGoal();
+  }, []);
+
+  useEffect(() => {
+      fetchDailyCalories();
+  }, [selectedDate]);
 
   const handleEditGoal = () => {
     setIsEditing(!isEditing);
@@ -24,7 +48,28 @@ const OverviewScreen = () => {
 
   const handleSaveGoal = () => {
     setIsEditing(!isEditing);
+    updateUser({...user, calorieGoal});
     // Save the calorie goal locally, e.g., AsyncStorage
+  };
+
+  const fetchDailyCalories = async () => {
+    const mealsLog = await retrieveMealsLog();
+    if (mealsLog && mealsLog[selectedDate]) {
+      const selectedData = mealsLog[selectedDate];
+      setDailyCalories(selectedData.calories);
+      setMacronutrients({
+        carbs: selectedData.carbs,
+        protein: selectedData.protein,
+        fat: selectedData.fat,
+      });
+    } else {
+      setDailyCalories(0);
+      setMacronutrients({
+        carbs: 0,
+        protein: 0,
+        fat: 0,
+      });
+    }
   };
 
   // Utility function to check if two date strings represent the same day
@@ -46,26 +91,9 @@ const OverviewScreen = () => {
     return result;
   };
 
-  const handleDayPress = async (day) => {
+  const handleDayPress = async day => {
     setSelectedDate(day.dateString);
-    const mealsLog = await retrieveMealsLog();
-  
-    if (mealsLog && mealsLog[day.dateString]) {
-      const selectedData = mealsLog[day.dateString];
-      setDailyCalories(selectedData.calories);
-      setMacronutrients({
-        carbs: selectedData.carbs,
-        protein: selectedData.protein,
-        fat: selectedData.fat,
-      });
-    } else {
-      setDailyCalories(0);
-      setMacronutrients({
-        carbs: 0,
-        protein: 0,
-        fat: 0,
-      });
-    }
+    await fetchDailyCalories();
   };
 
   const renderMarkedDates = () => {
@@ -80,22 +108,25 @@ const OverviewScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.calorieGoalContainer}>
-        <Text style={styles.title}>Kalorienziel:</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.input}
-            value={calorieGoal}
-            onChangeText={setCalorieGoal}
-            keyboardType="numeric"
+      <View style={styles.topWrapper}>
+        <UserCard user={user} />
+        <View style={styles.calorieGoalContainer}>
+          <Text style={styles.title}>Kalorienziel:</Text>
+          {isEditing ? (
+            <TextInput
+              style={styles.input}
+              value={calorieGoal.toString()}
+              onChangeText={setCalorieGoal}
+              keyboardType="numeric"
+            />
+          ) : (
+            <Text style={styles.goal}>{user.calorieGoal}</Text>
+          )}
+          <Button
+            title={isEditing ? 'Save' : 'Edit'}
+            onPress={isEditing ? handleSaveGoal : handleEditGoal}
           />
-        ) : (
-          <Text style={styles.goal}>{calorieGoal}</Text>
-        )}
-        <Button
-          title={isEditing ? 'Save' : 'Edit'}
-          onPress={isEditing ? handleSaveGoal : handleEditGoal}
-        />
+        </View>
       </View>
 
       <View style={styles.calendarContainer}>
@@ -136,8 +167,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#041C32',
   },
+  topWrapper: {
+    flexDirection: 'row'
+  },
   calorieGoalContainer: {
-    flex: 0.3,
+    flex: 0.5,
     backgroundColor: '#04293A',
     justifyContent: 'center',
     alignItems: 'center',

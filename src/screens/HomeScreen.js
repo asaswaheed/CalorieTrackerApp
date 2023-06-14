@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet, Text, View } from 'react-native';
 import OverviewScreen from './OverviewScreen';
 import DailyLogScreen from './DailyLogScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { UserContext } from '../../App'; // Import UserContext from App.js
 
 const Tab = createBottomTabNavigator();
 
@@ -20,6 +21,9 @@ const getTabBarIcon = (routeName, focused, color, size) => {
 };
 
 const HomeScreen = () => {
+  const { selectedUser } = useContext(UserContext); // Access selectedUser from UserContext
+  console.log(selectedUser);
+
   return (
     <View style={styles.container}>
       <Tab.Navigator
@@ -34,7 +38,9 @@ const HomeScreen = () => {
             getTabBarIcon(route.name, focused, color, size),
         })}
       >
-        <Tab.Screen name="Übersicht" component={OverviewScreen} />
+        <Tab.Screen name="Übersicht">
+          {(props) => <OverviewScreen {...props} user={selectedUser} />}
+        </Tab.Screen>
         <Tab.Screen name="Tagebuch" component={DailyLogScreen} />
       </Tab.Navigator>
     </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -10,15 +10,17 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { fetchSearchResults } from '../components/searchService';
+import { fetchSearchResults } from '../services/searchService';
 import {
-    storeMealsLog,
-    retrieveMealsLog,
-  } from '../components/storageService';
+  addUserMeal,
+  retrieveUserMeals,
+} from '../services/storageService';
+import { UserContext } from '../../App';
 
 const MealLogScreen = ({ navigation, route }) => {
   const { mealTitle } = route.params;
   const selectedDate = new Date(route.params.selectedDate.getTime());
+  const { selectedUser } = useContext(UserContext);
   const [mealCalories, setMealCalories] = useState(0);
   const [items, setItems] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -26,7 +28,7 @@ const MealLogScreen = ({ navigation, route }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showItemDetails, setShowItemDetails] = useState(false);
-  const [mealsLog, setMealsLog] = useState({});
+  const [userMeals, setUserMeals] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,41 +45,43 @@ const MealLogScreen = ({ navigation, route }) => {
   }, [searchText]);
 
   useEffect(() => {
-    const fetchMealsLog = async () => {
-      const log = await retrieveMealsLog();
-      setMealsLog(log);
+    const fetchUserMeals = async () => {
+      const meals = await retrieveUserMeals(selectedUser.id, selectedDate);
+      setUserMeals(meals);
     };
-    fetchMealsLog();
-  }, []);
+    fetchUserMeals();
+  }, [selectedUser, selectedDate]);
 
   const handleSaveMeal = async () => {
-    const meal = { title: mealTitle, calories: mealCalories, items };
-    const updatedLog = {
-      ...mealsLog,
-      [selectedDate]: { ...(mealsLog[selectedDate] || {}), [mealTitle]: meal },
-    };
-    try {
-      await storeMealsLog(updatedLog);
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error saving meal:', error);
-    }
+    const mealItems = items.map(item => ({
+      name: item.name,
+      calories: item.calories,
+      fat: item.fat,
+      carbs: item.carbs,
+      protein: item.protein
+    }));
+  
+    await addUserMeal(mealTitle, mealItems, selectedDate);
+    navigation.goBack();
   };
 
   const handleScanBarcode = () => {
     navigation.navigate('ScanBarcode');
   };
 
-  const handleAddItem = item => {
-    const newItem = { name: item.name, calories: item.calories };
-    setItems(prevItems => [...prevItems, newItem]);
-  };
-
   const handleSelectItem = item => {
     setSelectedItem(item);
     setSearchText(item.name);
     setShowDropdown(false);
+    handleAddItem(item); // Call handleAddItem with the selected item
   };
+  
+  const handleAddItem = item => {
+    const newItem = { name: item.name, calories: item.calories };
+    setItems(prevItems => [...prevItems, newItem]);
+  };
+  
+  
 
   const renderItem = ({ item }) => {
     if (item.id === 0) {

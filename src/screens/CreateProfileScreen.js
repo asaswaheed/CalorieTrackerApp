@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button } from 'react-native';
-import { storeUserProfile, calculateCalorieGoal } from '../components/userProfileService';
+import { storeUserProfile, calculateCalorieGoal } from '../services/userProfileService';
 
 const CreateProfileScreen = ({ navigation }) => {
   const [weight, setWeight] = useState('');
