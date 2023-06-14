@@ -1,5 +1,6 @@
-import React from 'react';
+import { React, useState, useEffect } from 'react';
 import 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import HomeScreen from './src/screens/HomeScreen';
@@ -15,13 +16,25 @@ import {
 } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 import MealLogScreen from './src/screens/MealLogScreen';
+import Profile from './src/screens/Profile';
 
 const Stack = createStackNavigator();
 
 const App = () => {
+  const [onboarded, setOnboarded] = useState();
+  
+  useEffect(() => {
+    getStorage();
+  }, []);
+  
+  const getStorage = async () => {
+    const onboarded = await AsyncStorage.getItem('ONBOARDED');
+    setOnboarded(JSON.parse(onboarded));
+  };
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName={onboarded ? 'Home' : 'Welcome'}>
         <Stack.Screen
           name="Welcome"
           component={WelcomeScreen}
@@ -35,6 +48,11 @@ const App = () => {
         <Stack.Screen
           name="MealLogScreen"
           component={MealLogScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={Profile}
           options={{headerShown: false}}
         />
       </Stack.Navigator>
