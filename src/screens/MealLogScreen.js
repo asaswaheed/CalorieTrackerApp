@@ -15,6 +15,8 @@ import {
     storeMealsLog,
     retrieveMealsLog,
   } from '../components/storageService';
+import BasicModal from '../components/BasicModal';
+import BarCodeScanner from '../components/BarcodeScanner';
 
 const MealLogScreen = ({ navigation, route }) => {
   const { mealTitle } = route.params;
@@ -27,6 +29,7 @@ const MealLogScreen = ({ navigation, route }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [showItemDetails, setShowItemDetails] = useState(false);
   const [mealsLog, setMealsLog] = useState({});
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,7 +68,7 @@ const MealLogScreen = ({ navigation, route }) => {
   };
 
   const handleScanBarcode = () => {
-    navigation.navigate('ScanBarcode');
+    setShowBarcodeScanner(true);
   };
 
   const handleAddItem = item => {
@@ -168,6 +171,7 @@ const MealLogScreen = ({ navigation, route }) => {
           )}
         />
       </View>
+      <BasicModal title="Barcode Scanner" isVisible={showBarcodeScanner} onClose={() => setShowBarcodeScanner(false)}><BarCodeScanner/></BasicModal>
     </View>
   );
 };

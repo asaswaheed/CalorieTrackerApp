@@ -1,8 +1,13 @@
 import React from 'react';
-import HomeScreen from './HomeScreen';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const WelcomeScreen = ({navigation}) => {
+  const onPressFinish = async () => {
+    await AsyncStorage.setItem('ONBOARDED', 'true');
+    navigation.navigate('Profile');
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -11,12 +16,7 @@ const WelcomeScreen = ({navigation}) => {
       />
       <TouchableOpacity
         style={[styles.button, styles.buttonPrimary]}
-        onPress={() => {
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'Home'}],
-          });
-        }}>
+        onPress={onPressFinish}>
         <Text style={styles.buttonText}>Loslegen</Text>
       </TouchableOpacity>
     </View>

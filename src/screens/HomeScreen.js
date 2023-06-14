@@ -3,7 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet, Text, View } from 'react-native';
 import OverviewScreen from './OverviewScreen';
 import DailyLogScreen from './DailyLogScreen';
+import Profile from './Profile';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,21 +24,45 @@ const getTabBarIcon = (routeName, focused, color, size) => {
 const HomeScreen = () => {
   return (
     <View style={styles.container}>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerTitle: () => <Text style={styles.headerText}>CalPal</Text>,
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: '#222',
+      }}
+    >
+      <Tab.Screen
+        name="Overview"
+        component={OverviewScreen}
+        options={{
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#041C32' },
-          tabBarActiveBackgroundColor: '#545B77',
-          tabBarInactiveBackgroundColor: '#374259',
-          tabBarLabelStyle: styles.tabBarLabel,
-          tabBarIcon: ({ focused, color, size }) =>
-            getTabBarIcon(route.name, focused, color, size),
-        })}
-      >
-        <Tab.Screen name="Übersicht" component={OverviewScreen} />
-        <Tab.Screen name="Tagebuch" component={DailyLogScreen} />
-      </Tab.Navigator>
+          tabBarLabel: 'Overview',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="DailyLog"
+        component={DailyLogScreen}
+        options={{
+          headerTitleAlign: 'center',
+          tabBarLabel: 'DailyLog',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="plus" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          headerTitleAlign: 'center',
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account" color={color} size={size} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
     </View>
   );
 };
