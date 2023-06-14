@@ -17,7 +17,6 @@ const Profile = ({ navigation }) => {
   }
 
   useEffect(() => {
-    console.log(userData);
     setCal(getCal());
   }, [userData]);
 
