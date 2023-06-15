@@ -80,7 +80,7 @@ const OverviewScreen = () => {
     const markedDates = {};
 
     if (selectedDate) {
-      markedDates[selectedDate] = {selected: true, selectedColor: '#0d58ba'};
+      markedDates[selectedDate] = {selected: true, selectedColor: 'black'};
     }
 
     return markedDates;
@@ -105,18 +105,19 @@ const OverviewScreen = () => {
           onDayPress={handleDayPress}
           markedDates={renderMarkedDates()}
           theme={{
-            calendarBackground: '#04293A',
-            textSectionTitleColor: 'white',
+            calendarBackground: '#EFF5F5',
+            textSectionTitleColor: 'black',
             selectedDayBackgroundColor: '#205295',
             selectedDayTextColor: 'white',
             todayTextColor: '#205295',
-            dayTextColor: 'white',
+            dayTextColor: 'black',
             textDisabledColor: '#9e9e9e',
-            arrowColor: 'white',
-            monthTextColor: 'white',
+            arrowColor: 'black',
+            monthTextColor: 'black',
             textMonthFontWeight: 'bold',
             textDayFontSize: 18,
             textMonthFontSize: 20,
+            backgroundColor: '#EFF5F5',
           }}
           style={styles.calendar}
         />
@@ -130,11 +131,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#041C32',
+    backgroundColor: '#D6E4E5',
   },
   calorieGoalContainer: {
     flex: 0.3,
-    backgroundColor: '#04293A',
+    backgroundColor: '#EFF5F5',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 10,
@@ -145,12 +146,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    color: 'white',
+    color: 'black',
     fontFamily: 'Rajdhani-Bold',
   },
   goal: {
     fontSize: 20,
-    color: 'white',
+    color: 'black',
     fontFamily: 'Rajdhani-Bold',
   },
   input: {
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     paddingHorizontal: 5,
-    backgroundColor: '#064663',
+    backgroundColor: '#EFF5F5',
     margin: 7,
   },
   macronutrientContainer: {
@@ -185,17 +186,17 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 20,
     borderColor: 'transparent',
-    backgroundColor: '#04293A',
+    backgroundColor: '#D6E4E5',
   },
   summaryTotalCalorieText: {
     fontSize: 20,
-    color: 'white',
+    color: 'black',
     marginBottom: 10,
     fontFamily: 'Rajdhani-Bold',
   },
   calendarContainer: {
     flex: 1,
-    backgroundColor: '#041C32',
+    backgroundColor: '#D6E4E5',
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 7,
