@@ -28,20 +28,27 @@ const Profile = ({navigation}) => {
     }
   };
 
-  // useEffect(() => {
-  //   setCal(getCal());
-  // }, [userData]);
+  useEffect(() => {
+    setCal(getCal());
+  }, [userData]);
 
   // const updateCal = () => {
   //   setCal(getCal());
   // }
 
   const saveData = async () => {
+    try {
+      await AsyncStorage.setItem('userData', JSON.stringify({
+        ...userData,
+        calGoal: cal
+      }));
+    } catch (error) {
+      console.log('Error storing user profile: ', error);
+    }
     setUserData({
       ...userData,
       calGoal: cal,
     });
-    storeUserProfile(userData);
     navigation.navigate('Home');
   };
 
@@ -84,8 +91,7 @@ const Profile = ({navigation}) => {
             setUserData({
               ...userData,
               age: value,
-            });
-            setCal(getCal());
+            })
           }}
         />
       </View>
@@ -98,9 +104,8 @@ const Profile = ({navigation}) => {
           onValueChange={value => {
             setUserData({
               ...userData,
-              gender: value,
-            });
-            setCal(getCal());
+              gender: value
+            })
           }}
           items={[
             {label: 'Männlich', value: 'männlich'},
@@ -119,8 +124,7 @@ const Profile = ({navigation}) => {
             setUserData({
               ...userData,
               height: value,
-            });
-            setCal(getCal());
+            })
           }}
         />
       </View>
@@ -135,8 +139,7 @@ const Profile = ({navigation}) => {
             setUserData({
               ...userData,
               weight: value,
-            });
-            setCal(getCal());
+            })
           }}
         />
       </View>
@@ -149,9 +152,8 @@ const Profile = ({navigation}) => {
           onValueChange={value => {
             setUserData({
               ...userData,
-              activity: value,
-            });
-            setCal(getCal());
+              activity: value
+            })
           }}
           items={[
             {label: 'Grundumsatz (BMR)', value: 1},

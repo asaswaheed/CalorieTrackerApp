@@ -33,9 +33,14 @@ const DailyLogScreen = ({navigation}) => {
     setDailyGoal(userData.calGoal);
   }, [userData]);
 
+  const getDateString = date => {
+    return date.toISOString().split('T')[0];
+  }
+
   const handleEditMeal = meal => {
     setMealTitle(meal);
-    navigation.navigate('MealLogScreen', {mealTitle: meal, selectedDate});
+    const dateString = selectedDate.toISOString().split('T')[0];
+    navigation.navigate('MealLogScreen', {mealTitle: meal, dateString});
   };
 
   const getFormattedDate = date => {

@@ -13,9 +13,12 @@ const ProductView = ({ product, mealTitle, date, onClose }) => {
     setAmount(value);
   };
 
+  const getNutrition = (value) => {
+    return parseFloat(amount)/100 * value;
+  };
+
   const handleAddCalories = async () => {
-    const productCalories = parseFloat(amount)/100 * productData.calories;
-    const dateString = date.toISOString().split('T')[0];
+    const dateString = date;
     let meal = "";
     if(mealTitle === "Frühstück") {
       meal = "breakfast";
@@ -29,11 +32,11 @@ const ProductView = ({ product, mealTitle, date, onClose }) => {
       
       if(storedDayLogs != null) {
         console.log("Found dayLogs");
-        storedDayLogs.calories += Math.floor(productCalories);
-        storedDayLogs.carbs += Math.floor(productData.carbs);
-        storedDayLogs.fat += Math.floor(productData.fat);
-        storedDayLogs.protein += Math.floor(productData.protein);
-        storedDayLogs[meal].calories += Math.floor(productCalories);
+        storedDayLogs.calories += Math.floor(getNutrition(productData.calories));
+        storedDayLogs.carbs += Math.floor(getNutrition(productData.carbs));
+        storedDayLogs.fat += Math.floor(getNutrition(productData.fat));
+        storedDayLogs.protein += Math.floor(getNutrition(productData.protein));
+        storedDayLogs[meal].calories += Math.floor(getNutrition(productData.calories));
         storedDayLogs[meal].products.push(productData);
         await AsyncStorage.setItem(dateString, JSON.stringify(storedDayLogs));
         console.log(storedDayLogs);
@@ -44,11 +47,11 @@ const ProductView = ({ product, mealTitle, date, onClose }) => {
           lunch: {calories: 0, products: []}, 
           dinner: {calories: 0, products: []}};
         
-        storedDayLogs.calories = Math.floor(productCalories);
-        storedDayLogs.carbs = Math.floor(productData.carbs);
-        storedDayLogs.fat = Math.floor(productData.fat);
-        storedDayLogs.protein = Math.floor(productData.protein);
-        storedDayLogs[meal].calories = Math.floor(productCalories);
+        storedDayLogs.calories = Math.floor(getNutrition(productData.calories));
+        storedDayLogs.carbs = Math.floor(getNutrition(productData.carbs));
+        storedDayLogs.fat = Math.floor(getNutrition(productData.fat));
+        storedDayLogs.protein = Math.floor(getNutrition(productData.protein));
+        storedDayLogs[meal].calories = Math.floor(getNutrition(productData.calories));
         storedDayLogs[meal].products.push(productData);
         await AsyncStorage.setItem(dateString, JSON.stringify(storedDayLogs));
         console.log(storedDayLogs);
@@ -56,7 +59,7 @@ const ProductView = ({ product, mealTitle, date, onClose }) => {
     } catch (error) {
       console.log(error);
     }
-    setCalories(productCalories);
+    setCalories(getNutrition(productData.calories));
     setDayLogs(dayLogs);
     onClose();
   };
