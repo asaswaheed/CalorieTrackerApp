@@ -137,13 +137,13 @@ const DailyLogScreen = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      <View style={[styles.wrapperContainer, {backgroundColor: '#04293A'}]}>
+      <View style={[styles.wrapperContainer, {backgroundColor: '#EFF5F5'}]}>
         <View style={styles.summaryContainer}>
           <Text style={styles.headerText}>Gegessen</Text>
           <Text
             style={[
               styles.calorieText,
-              {color: dailyGoal - dailyCalories < 0 ? '#a10808' : '#4ecf04'},
+              {color: dailyGoal - dailyCalories < 0 ? '#590916' : '#095911'},
             ]}>
             {dailyCalories} kcal
           </Text>
@@ -163,7 +163,7 @@ const DailyLogScreen = ({navigation}) => {
         </View>
       </View>
 
-      <View style={[styles.mealContainer, {backgroundColor: '#04293A'}]}>
+      <View style={[styles.mealContainer, {backgroundColor: '#EFF5F5'}]}>
         <View style={styles.mealItem}>
           <Text style={styles.mealText}>
             Frühstück - {mealLogs.breakfast} kcal
@@ -196,7 +196,7 @@ const DailyLogScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eee',
+    backgroundColor: '#D6E4E5',
   },
   calendarBar: {
     flexDirection: 'row',
@@ -218,28 +218,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     margin: 7,
     borderWidth: 0.5,
+    borderColor: 'transparent',
     borderRadius: 20,
   },
   summaryContainer: {
     flex: 0.25,
     justifyContent: 'center',
+    borderColor: 'transparent',
     alignItems: 'center',
   },
   headerText: {
     fontSize: 24,
-    color: 'white',
+    color: 'black',
     marginBottom: 5,
     fontFamily: 'Rajdhani-Bold',
   },
   calorieText: {
     fontSize: 48,
-    color: 'white',
+    color: 'black',
     marginBottom: 10,
     fontFamily: 'Rajdhani-Bold',
   },
   goalText: {
     fontSize: 18,
-    color: 'white',
+    color: 'black',
     marginBottom: 10,
     fontFamily: 'Rajdhani-Bold',
   },
@@ -251,7 +253,7 @@ const styles = StyleSheet.create({
   },
   macronutrientText: {
     fontSize: 18,
-    color: 'white',
+    color: 'black',
     fontFamily: 'Rajdhani-Bold',
   },
   mealContainer: {
@@ -262,6 +264,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 0.5,
     justifyContent: 'center',
+    borderColor: 'transparent',
   },
   mealItem: {
     flexDirection: 'row',
@@ -274,12 +277,12 @@ const styles = StyleSheet.create({
   },
   mealText: {
     fontSize: 24,
-    color: 'white',
+    color: 'black',
     fontFamily: 'Rajdhani-Bold',
   },
   editText: {
     fontSize: 16,
-    color: 'white',
+    color: 'black',
     fontFamily: 'Rajdhani-Regular',
   },
 });

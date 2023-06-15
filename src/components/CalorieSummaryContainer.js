@@ -37,11 +37,11 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 20,
     borderColor: 'transparent',
-    backgroundColor: '#04293A',
+    backgroundColor: '#EFF5F5',
   },
   summaryTotalCalorieText: {
     fontSize: 20,
-    color: 'white',
+    color: 'black',
     marginBottom: 10,
     fontFamily: 'Rajdhani-Bold',
   },
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   macronutrientText: {
     fontSize: 16,
-    color: 'white',
+    color: 'black',
     fontFamily: 'Rajdhani-Bold',
   },
 });
