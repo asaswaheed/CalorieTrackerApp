@@ -1,38 +1,78 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Button, Text, View, TextInput, StyleSheet } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppContext } from '../../App';
+import BasicButton from '../components/BasicButton';
 
 const Profile = ({ navigation }) => {
-  const [cal, setCal] = useState();
-  const [userData, setUserData] = useState({
-    age: 25,
-    gender: 'male',
-    height: 180,
-    weight: 65,
-    activity: 1
-  });
+  const { userData, setUserData } = useContext(AppContext);
+  const [cal, setCal] = useState(userData.calGoal);
 
   const getCal = () => {
-    return parseInt((userData.gender === 'male' ? 10*userData.weight + 6.25*userData.height - 5*userData.age + 5 : 10*userData.weight + 6.25*userData.height - 5*userData.age - 161) * userData.activity);
+    return parseInt((userData.gender === 'männlich' ? 10*userData.weight + 6.25*userData.height - 5*userData.age + 5 : 10*userData.weight + 6.25*userData.height - 5*userData.age - 161) * userData.activity);
+  }
+  
+  const storeUserProfile = async (profile) => {
+    try {
+      await AsyncStorage.setItem('userData', JSON.stringify(profile));
+    } catch (error) {
+      console.log('Error storing user profile: ', error);
+    }
+  };
+
+  // useEffect(() => {
+  //   setCal(getCal());
+  // }, [userData]);
+
+  // const updateCal = () => {
+  //   setCal(getCal());
+  // }
+
+  const saveData = async () => {
+    setUserData({
+      ...userData,
+      calGoal: cal
+    });
+    storeUserProfile(userData);
+    navigation.navigate('Home');
+  };
+
+  const clearData = async() => {
+    AsyncStorage.clear();
+    resetUserData();
   }
 
-  useEffect(() => {
-    setCal(getCal());
-  }, [userData]);
+  const resetUserData = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('userData');
+      setUserData(userData != null ? JSON.parse(userData) : {
+        calGoal: 2500,
+        age: 25,
+        gender: 'männlich',
+        height: 180,
+        weight: 65,
+        activity: 1
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <View style={styles.container} >
-      <Text style={styles.description}>Calories: {cal} kCal</Text>
+      <Text style={styles.description}>Kalorien: {cal} Kcal</Text>
       <TextInput
         style={styles.input}
-        placeholder="Age"
+        placeholder="Alter"
         keyboardType="numeric"
         value={String(userData.age)}
         onChangeText={(value) => {
           setUserData({
             ...userData,
             age: value
-          })
+          });
+          setCal(getCal());
         }}
       />
       <RNPickerSelect
@@ -42,35 +82,38 @@ const Profile = ({ navigation }) => {
             setUserData({
               ...userData,
               gender: value
-            })
+            });
+            setCal(getCal());
           }}
           items={[
-              { label: 'Male', value: 'male' },
-              { label: 'Female', value: 'female' }
+              { label: 'Männlich', value: 'männlich' },
+              { label: 'Weiblich', value: 'weiblich' }
           ]}
       />
       <TextInput
         style={styles.input}
         value={String(userData.height)}
-        placeholder="Height in cm"
+        placeholder="Größe in cm"
         keyboardType="numeric"
         onChangeText={(value) => {
           setUserData({
             ...userData,
             height: value
-          })
+          });
+          setCal(getCal());
         }}
       />
       <TextInput
         style={styles.input}
         value={String(userData.weight)}
-        placeholder="Weight in kg"
+        placeholder="Gewicht in kg"
         keyboardType="numeric"
         onChangeText={(value) => {
           setUserData({
             ...userData,
             weight: value
-          })
+          });
+          setCal(getCal());
         }}
       />
       <RNPickerSelect
@@ -80,18 +123,20 @@ const Profile = ({ navigation }) => {
             setUserData({
               ...userData,
               activity: value
-            })
+            });
+            setCal(getCal());
           }}
           items={[
-              { label: 'Basal Metabolic Rate (BMR)', value: 1 },
-              { label: 'Sedentary: minimal or no exercise', value: 1.2 },
-              { label: 'Lightly active: exercise 1-3 times/week', value: 1.375 },
-              { label: 'Moderately active: exercise 3-5 times/week', value: 1.55 },
-              { label: 'Very active: exercise 6-7 times/week', value: 1.725 },
-              { label: 'Extra active: very hard exercise 6-7 times/week', value: 1.9 }
+              { label: 'Grundumsatz (BMR)', value: 1 },
+              { label: 'Geringe Aktivität: minimale oder keine Bewegung', value: 1.2 },
+              { label: 'Leicht aktiv: 1-3 Mal pro Woche Sport treiben', value: 1.375 },
+              { label: 'Mäßig aktiv: 3–5 Mal pro Woche Sport treiben', value: 1.55 },
+              { label: 'Sehr aktiv: 6-7 Mal pro Woche Sport treiben', value: 1.725 },
+              { label: 'Besonders aktiv: 6-7 Mal pro Woche sehr anstrengend trainieren', value: 1.9 }
           ]}
       />
-      <Button title="Set Calorie Goal" onPress={() => navigation.navigate('Home')} />
+      <BasicButton title="Kalorienziel festlegen" onPress={saveData} />
+      <BasicButton title="Daten löschen" onPress={clearData} />
     </View>
   );
 };

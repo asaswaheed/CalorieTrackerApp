@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
-const SummaryContainer = ({carbs, protein, fat}) => {
+const SummaryContainer = ({calories, carbs, protein, fat}) => {
   // Calculate total calories based on macronutrient values
   const calculateTotalCalories = () => {
     const carbCalories = carbs * 4;
@@ -15,7 +15,7 @@ const SummaryContainer = ({carbs, protein, fat}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.summaryTotalCalorieText}>
-        Gesamtkalorien: {totalCalories}
+        Gesamtkalorien: {calories}
       </Text>
       <View style={styles.macronutrientContainer}>
         <Text style={styles.macronutrientText}>Kohlenhyd.: {carbs} g</Text>
