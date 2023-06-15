@@ -21,7 +21,7 @@ import ProductView from '../components/ProductView';
 
 const MealLogScreen = ({ navigation, route }) => {
   const { mealTitle } = route.params;
-  const selectedDate = new Date(route.params.selectedDate.getTime());
+  const selectedDate = route.params.dateString;
   const [mealCalories, setMealCalories] = useState(0);
   const [items, setItems] = useState([]);
   const [searchText, setSearchText] = useState('');

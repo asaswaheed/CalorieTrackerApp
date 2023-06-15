@@ -33,9 +33,14 @@ const DailyLogScreen = ({navigation}) => {
     setDailyGoal(userData.calGoal);
   }, [userData]);
 
+  const getDateString = date => {
+    return date.toISOString().split('T')[0];
+  }
+
   const handleEditMeal = meal => {
     setMealTitle(meal);
-    navigation.navigate('MealLogScreen', {mealTitle: meal, selectedDate});
+    const dateString = selectedDate.toISOString().split('T')[0];
+    navigation.navigate('MealLogScreen', {mealTitle: meal, dateString});
   };
 
   const getFormattedDate = date => {
@@ -122,13 +127,13 @@ const DailyLogScreen = ({navigation}) => {
     <View style={styles.container}>
       <View style={[styles.calendarBar]}>
         <TouchableOpacity onPress={handlePreviousDay}>
-          <Icon name="keyboard-arrow-left" size={30} color="white" />
+          <Icon name="keyboard-arrow-left" size={30} color="black" />
         </TouchableOpacity>
         <Text style={styles.dateText} onPress={handleDatePress}>
           {getFormattedDate(selectedDate)}
         </Text>
         <TouchableOpacity onPress={handleNextDay}>
-          <Icon name="keyboard-arrow-right" size={30} color="white" />
+          <Icon name="keyboard-arrow-right" size={30} color="black" />
         </TouchableOpacity>
       </View>
 
@@ -191,7 +196,7 @@ const DailyLogScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#041C32',
+    backgroundColor: '#eee',
   },
   calendarBar: {
     flexDirection: 'row',
@@ -203,7 +208,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 18,
-    color: 'white',
+    color: 'black',
     fontFamily: 'Rajdhani-Bold',
   },
   wrapperContainer: {

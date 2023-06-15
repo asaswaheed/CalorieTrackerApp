@@ -6,18 +6,10 @@ import {createStackNavigator} from '@react-navigation/stack';
 import HomeScreen from './src/screens/HomeScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
-  View,
 } from 'react-native';
-import AppNavigator from './src/navigation/AppNavigator';
 import MealLogScreen from './src/screens/MealLogScreen';
 import Profile from './src/screens/Profile';
-import { retrieveDayLog, storeDayLog } from './src/components/storageService';
 
 const Stack = createStackNavigator();
 
@@ -27,16 +19,10 @@ const App = () => {
   const [onBoarded, setOnBoarded] = useState();
   const [userData, setUserData] = useState();
   const [dayLogs, setDayLogs] = useState({
-    calories: 155, protein: 155, fat: 55, carbs: 25, 
-    breakfast: {calories: 5, products: []}, 
-    lunch: {calories: 15, products: []}, 
-    dinner: {calories: 20, products: []}});
-  
-
-  // const testLog = {calories: 155, protein: 155, fat: 55, carbs: 25, 
-  //   Frühstück: {kcal: 0, lebensmittel: []}, 
-  //   Mittagessen: {kcal: 0, lebensmittel: []}, 
-  //   Abendessen: {kcal: 0, lebensmittel: []}};
+    calories: 0, protein: 0, fat: 0, carbs: 0, 
+    breakfast: {calories: 0, products: []}, 
+    lunch: {calories: 0, products: []}, 
+    dinner: {calories: 0, products: []}});
   
   const appContextValue = {
     onBoarded,

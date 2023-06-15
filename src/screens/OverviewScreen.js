@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#041C32',
+    backgroundColor: '#eee',
   },
   calorieGoalContainer: {
     flex: 0.3,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   },
   calendarContainer: {
     flex: 1,
-    backgroundColor: '#041C32',
+    backgroundColor: '#eee',
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 7,
