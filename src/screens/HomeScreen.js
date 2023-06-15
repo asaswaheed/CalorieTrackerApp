@@ -1,5 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, Text, View } from 'react-native';
 import OverviewScreen from './OverviewScreen';
 import DailyLogScreen from './DailyLogScreen';
@@ -30,33 +31,33 @@ const HomeScreen = () => {
       }}
     >
       <Tab.Screen
-        name="Overview"
+        name="Übersicht"
         component={OverviewScreen}
         options={{
           headerTitleAlign: 'center',
-          tabBarLabel: 'Overview',
+          tabBarLabel: 'Übersicht',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" color={color} size={size} />
           ),
         }}
       />
       <Tab.Screen
-        name="DailyLog"
+        name="Tagebuch"
         component={DailyLogScreen}
         options={{
           headerTitleAlign: 'center',
-          tabBarLabel: 'DailyLog',
+          tabBarLabel: 'Tagebuch',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="plus" color={color} size={size} />
           ),
         }}
       />
       <Tab.Screen
-        name="Profile"
+        name="Profil"
         component={Profile}
         options={{
           headerTitleAlign: 'center',
-          tabBarLabel: 'Profile',
+          tabBarLabel: 'Profil',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="account" color={color} size={size} />
           ),

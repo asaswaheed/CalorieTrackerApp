@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {
   } from '../components/storageService';
 import BasicModal from '../components/BasicModal';
 import BarCodeScanner from '../components/BarcodeScanner';
+import ProductView from '../components/ProductView';
 
 const MealLogScreen = ({ navigation, route }) => {
   const { mealTitle } = route.params;
@@ -29,7 +30,10 @@ const MealLogScreen = ({ navigation, route }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [showItemDetails, setShowItemDetails] = useState(false);
   const [mealsLog, setMealsLog] = useState({});
-  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [scannedCode, setScannedCode] = useState();
+  const [productData, setProductData] = useState(null);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,8 +71,19 @@ const MealLogScreen = ({ navigation, route }) => {
     }
   };
 
-  const handleScanBarcode = () => {
-    setShowBarcodeScanner(true);
+  const getProductData = async (code) => {
+    try {
+      const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
+      const json = await response.json();
+      setProductData(json);
+      setScannedCode(code);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleBarcodeScanned = code => {
+      getProductData(code);
   };
 
   const handleAddItem = item => {
@@ -130,7 +145,7 @@ const MealLogScreen = ({ navigation, route }) => {
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.title}>{mealTitle}</Text>
-        <TouchableOpacity onPress={handleScanBarcode}>
+        <TouchableOpacity onPress={() => setShowModal(true)}>
           <MaterialCommunityIcons name="barcode-scan" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -171,7 +186,16 @@ const MealLogScreen = ({ navigation, route }) => {
           )}
         />
       </View>
-      <BasicModal title="Barcode Scanner" isVisible={showBarcodeScanner} onClose={() => setShowBarcodeScanner(false)}><BarCodeScanner/></BasicModal>
+      <BasicModal title="Strichcode einscannen" isVisible={showModal} onClose={() => {
+        setShowModal(false);
+        setScannedCode();
+      }}>
+        {scannedCode ? (
+          <ProductView product={productData} mealTitle={mealTitle} date={selectedDate} onClose={() => setShowModal(false)} />
+        ) : (
+          <BarCodeScanner onBarCodeScanned={handleBarcodeScanned}/>
+        )}
+      </BasicModal>
     </View>
   );
 };

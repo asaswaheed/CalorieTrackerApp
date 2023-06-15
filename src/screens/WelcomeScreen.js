@@ -1,10 +1,20 @@
-import React from 'react';
+import { React, useState, useEffect, useContext } from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppContext } from '../../App';
 
 const WelcomeScreen = ({navigation}) => {
-  const onPressFinish = async () => {
-    await AsyncStorage.setItem('ONBOARDED', 'true');
+  // access the context
+
+  const { setOnBoarded } = useContext(AppContext);
+
+  const onPressStart = async () => {
+    try {
+      await AsyncStorage.setItem('onBoarded', 'true');
+      setOnBoarded(true);
+    } catch (error) {
+      console.log(error);
+    }
     navigation.navigate('Profile');
   };
 
@@ -16,7 +26,7 @@ const WelcomeScreen = ({navigation}) => {
       />
       <TouchableOpacity
         style={[styles.button, styles.buttonPrimary]}
-        onPress={onPressFinish}>
+        onPress={onPressStart}>
         <Text style={styles.buttonText}>Loslegen</Text>
       </TouchableOpacity>
     </View>

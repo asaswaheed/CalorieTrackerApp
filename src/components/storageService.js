@@ -44,3 +44,36 @@ export const retrieveMealsLog = async () => {
     return {};
   }
 };
+
+export const storeDayLog = async (dateString, log) => {
+  try {
+    await AsyncStorage.setItem(dateString, JSON.stringify(log));
+  } catch (error) {
+    console.log('Error storing meals log: ', error);
+  }
+};
+
+export const retrieveDayLog = async (dateString) => {
+  try {
+    const dayLog = await AsyncStorage.getItem(dateString);
+    if (dayLog !== null) {
+      return JSON.parse(dayLog);
+    }
+  } catch (error) {
+    console.log('Error retrieving meals log: ', error);
+  }
+};
+
+
+// const data = {
+//   gender: 'male',
+//   height: 180,
+//   weight: 70,
+//   calGoal: 2500
+// }
+
+// const logs = {
+//   '15.06.2023': {'calories': 150, 'protein': 10, 'fat': 5, 'carbs': 20, 'Frühstück': {'kcal': 0, 'lebensmittel': []}, 'Mittagessen': {'kcal': 0, 'lebensmittel': []}, 'Abendessen': {'kcal': 0, 'lebensmittel': []}},
+//   '14.06.2023': {'calories': 150, 'protein': 10, 'fat': 5, 'carbs': 20, 'Frühstück': {'kcal': 0, 'lebensmittel': []}, 'Mittagessen': {'kcal': 0, 'lebensmittel': []}, 'Abendessen': {'kcal': 0, 'lebensmittel': []}},
+//   '13.06.2023': {'calories': 150, 'protein': 10, 'fat': 5, 'carbs': 20, 'Frühstück': {'kcal': 0, 'lebensmittel': []}, 'Mittagessen': {'kcal': 0, 'lebensmittel': []}, 'Abendessen': {'kcal': 0, 'lebensmittel': []}}
+// }

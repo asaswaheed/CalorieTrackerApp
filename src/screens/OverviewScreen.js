@@ -1,31 +1,27 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import CalorieSummaryContainer from '../components/CalorieSummaryContainer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { retrieveMealsLog } from '../components/storageService';
+import { retrieveDayLog, storeDayLog } from '../components/storageService';
+import { AppContext } from '../../App';
+
 
 const OverviewScreen = () => {
-  const [calorieGoal, setCalorieGoal] = useState('2000');
-  const [isEditing, setIsEditing] = useState(false);
+  const { userData, setUserData, dayLogs, setDayLogs } = useContext(AppContext);
+  const [calorieGoal, setCalorieGoal] = useState(userData != null ? userData.calGoal : 2200);
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const [dailyCalories, setDailyCalories] = useState(2000); //Change with asynce
-  const [dailyGoal, setDailyGoal] = useState(2500); //Change with asynce
+  const [dailyCalories, setDailyCalories] = useState(dayLogs.calories); //Change with asynce
   const [macronutrients, setMacronutrients] = useState({
-    carbs: 150, //Change with asynce
-    protein: 100, //Change with asynce
-    fat: 60, //Change with asynce
+    carbs: dayLogs.carbs, //Change with asynce
+    protein: dayLogs.protein, //Change with asynce
+    fat: dayLogs.fat, //Change with asynce
   });
-
-  const handleEditGoal = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const handleSaveGoal = () => {
-    setIsEditing(!isEditing);
-    // Save the calorie goal locally, e.g., AsyncStorage
-  };
+  
+  useEffect(() => {
+    setCalorieGoal(userData.calGoal);
+  }, [userData]);
 
   // Utility function to check if two date strings represent the same day
   const isSameDay = (dateString1, dateString2) => {
@@ -47,16 +43,27 @@ const OverviewScreen = () => {
   };
 
   const handleDayPress = async (day) => {
-    setSelectedDate(day.dateString);
-    const mealsLog = await retrieveMealsLog();
-  
-    if (mealsLog && mealsLog[day.dateString]) {
-      const selectedData = mealsLog[day.dateString];
-      setDailyCalories(selectedData.calories);
+    const dateString = day.dateString; 
+    console.log(dateString);
+    setSelectedDate(dateString);
+    // const testLog = {calories: 155, protein: 155, fat: 55, carbs: 25, 
+    //   Frühstück: {kcal: 0, lebensmittel: []}, 
+    //   Mittagessen: {kcal: 0, lebensmittel: []}, 
+    //   Abendessen: {kcal: 0, lebensmittel: []}};
+    // try {
+    //   await storeDayLog(dateString, testLog);
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    const dayLog = await retrieveDayLog(dateString);
+    console.log("Retrieved: " + dayLog);
+
+    if (dayLog) {
+      setDailyCalories(dayLog.calories);
       setMacronutrients({
-        carbs: selectedData.carbs,
-        protein: selectedData.protein,
-        fat: selectedData.fat,
+        carbs: dayLog.carbs,
+        protein: dayLog.protein,
+        fat: dayLog.fat,
       });
     } else {
       setDailyCalories(0);
@@ -66,6 +73,7 @@ const OverviewScreen = () => {
         fat: 0,
       });
     }
+    console.log(dayLog);
   };
 
   const renderMarkedDates = () => {
@@ -82,24 +90,12 @@ const OverviewScreen = () => {
     <View style={styles.container}>
       <View style={styles.calorieGoalContainer}>
         <Text style={styles.title}>Kalorienziel:</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.input}
-            value={calorieGoal}
-            onChangeText={setCalorieGoal}
-            keyboardType="numeric"
-          />
-        ) : (
           <Text style={styles.goal}>{calorieGoal}</Text>
-        )}
-        <Button
-          title={isEditing ? 'Save' : 'Edit'}
-          onPress={isEditing ? handleSaveGoal : handleEditGoal}
-        />
       </View>
 
       <View style={styles.calendarContainer}>
         <CalorieSummaryContainer
+          calories={dailyCalories}
           carbs={macronutrients.carbs}
           protein={macronutrients.protein}
           fat={macronutrients.fat}
